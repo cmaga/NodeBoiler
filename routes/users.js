@@ -1,24 +1,62 @@
-const express = require('express');
-const router = express.Router();
+/**
+ * Define operations for users API.
+ */
+
+const router = require('express').Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { registerValidation, loginValidation } = require('../validation');
 
-router.get('/', (req, res) => {
-    res.send("Users");
-});
+//Register a user
+router.post('/register', async (req, res) => {
 
-router.post('/', (req, res) => {
+    //Validate post data
+    const { error } = registerValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    //Check if user exists in DB
+    const emailExist = await User.findOne({ email: req.body.email });
+    if (emailExist) return res.status(400).send('Email already exists');
+
+    //Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    //Create new user
     const user = new User({
         name: req.body.name,
-        accountId: req.body.accountId
+        email: req.body.email,
+        password: hashedPassword
     });
 
-    user.save()
-        .then(data => {
-            res.json(data);  
-        })
-        .catch(err => {
-            res.json({message: err});
-        });
+    try {
+        const savedUser = await user.save();
+        res.send({ user: savedUser._id });
+    } catch (err) {
+        res.status(400).send(err);
+    }
 });
+
+//Login a user
+router.post('/login', async (req, res) => {
+
+    //Validate post data
+    const { error } = loginValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    //Check if user exists in DB
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(400).send('Email is not registered');
+
+    //Check if password is correct
+    const validPass = await bcrypt.compare(req.body.password, user.password);
+
+    if (!validPass) return res.status(400).send('Invalid password');
+
+    //Create and assign login token
+    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+    res.header('auth-token', token).send(token);
+})
 
 module.exports = router;
