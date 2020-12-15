@@ -9,7 +9,6 @@ const dotenv = require('dotenv');
 
 //Import routes
 const usersRoute = require('./routes/users');
-const postRoute = require('./routes/posts');
 
 dotenv.config();
 
@@ -26,7 +25,6 @@ app.use(express.json());
 
 //Route middlewares
 app.use('/api/users', usersRoute);
-app.use('/api/posts', postRoute);
 
 const port = process.env.PORT
 app.listen(port, () => {
