@@ -40,7 +40,7 @@ function updateModule(moduleId, newModule) {
 function removeModuleUser(moduleId, userId) {
     return moduleModel.updateOne(
         {_id: moduleId},
-        {$pull: {'users': { userId: `${userId}`} } } //todo just userId might work but i think it needs to be string
+        {$pull: {'users': { userId: `${userId}`} } }
     );
 }
 

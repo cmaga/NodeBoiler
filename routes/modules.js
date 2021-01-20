@@ -91,7 +91,7 @@ function removeModuleUser(req, res) {
 
 //remove module by id
 function removeModule(req, res) {
-    let moduleId = req.params.moduleId; //todo not sure if this works
+    let moduleId = req.params.moduleId;
     console.log('deleting module: ' +moduleId);
     moduleModel
         .removeModule(moduleId)
@@ -102,9 +102,4 @@ function removeModule(req, res) {
         });
 }
 
-
 module.exports = router;
-
-//current problem is that postman for some reason never gets a response
-//meaning there seems to be an issue with our error handlling
-//best option is probably to just copy anthonys because idk how router is working
