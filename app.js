@@ -9,6 +9,7 @@ const dotenv = require('dotenv');
 
 //Import routes
 const usersRoute = require('./routes/users');
+const modulesRoute = require('./routes/modules');
 
 dotenv.config();
 
@@ -25,8 +26,9 @@ app.use(express.json());
 
 //Route middlewares
 app.use('/api/users', usersRoute);
+app.use('/api/modules', modulesRoute);
 
 const port = process.env.PORT
 app.listen(port, () => {
-    console.log("Server running");
+    console.log("Server running...attempting to connect to database");
 });
