@@ -59,4 +59,62 @@ router.post('/login', async (req, res) => {
     res.header('auth-token', token).send(token);
 })
 
+//Get all users
+router.get('/', async (req, res) => {
+    User.find({}, (err, users) => {
+        var userMap = {};
+
+        users.forEach((user) => {
+            userMap[user._id] = user;
+          });
+      
+          res.send(userMap);
+    })
+})
+
+//Get user by id
+router.get('/:userId', async (req, res, next) => {
+    User.findById(req.params.userId, (err, user) =>{
+        res.send(user);
+    })
+})
+
+//Update user by id
+router.put('/:userId', async (req, res, next) => {
+    //Validate put data
+    const { error } = registerValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    //Check if user exists in DB
+    const userExist = await User.findOne({ _id: req.params.userId });
+    if (!userExist) return res.status(400).send('User does not exist');
+
+    //Hash password if new password passed
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    
+    try {
+        const savedUser = await User.findOneAndUpdate({_id: req.params.userId}, {
+                name: req.body.name ? req.body.name : userExist.name,
+                email: req.body.email ? req.body.email : userExist.email,
+                password: hashedPassword //ToDo: confirm intended functionality of updating password
+            },
+            {new: true});
+        res.send({ user: savedUser._id });
+    } catch (err) {
+        res.status(400).send(err);
+    }
+})
+
+//Delete user by id
+router.delete('/:userId', async (req, res, next) => {
+    const deleteUser = await User.findOneAndDelete({ _id: req.params.userId });    
+
+    try {
+        res.send({user: deleteUser._id});
+    } catch (err) {
+        res.status(400).send(err);
+    }
+})
+
 module.exports = router;
