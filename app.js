@@ -5,13 +5,13 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+//const dotenv = require('dotenv');
 
 //Import routes
 const usersRoute = require('./routes/users');
 const modulesRoute = require('./routes/modules');
 
-dotenv.config();
+//dotenv.config();
 
 //DB Connect
 mongoose.connect(
