@@ -4,7 +4,6 @@ const moduleModel = mongoose.model('ModuleModel', moduleSchema);
 
 moduleModel.getModules = getModules;
 moduleModel.findModuleById = findModuleById;
-moduleModel.getModuleUsers = getModuleUsers;
 moduleModel.createModules = createModules;
 moduleModel.updateModule = updateModule;
 moduleModel.removeModuleUser = removeModuleUser;
@@ -14,12 +13,9 @@ module.exports = moduleModel;
 function getModules() {
     return moduleModel.find();
 }
+
 function findModuleById(moduleId) {
     return moduleModel.findById(moduleId);
-}
-
-function getModuleUsers(moduleId) {
-    return moduleModel.distinct("users", {users : {$exists : true}});
 }
 
 function createModules(modules) {
