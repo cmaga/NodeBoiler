@@ -12,94 +12,78 @@ router.delete('/:moduleId/:userId', removeModuleUser);
 router.delete('/:moduleId', removeModule);
 
 //retrieve all modules
-function getModules(req, res) {
+async function getModules(req, res) {
     console.log('getting all modules...');
-    moduleModel
-        .getModules()
-        .then(function (modules) {
-            res.send(modules);
-        }, function(err) {
-            res.send(err);
-        });
+    res.send(await moduleModel.getModules());
 }
 
 //retrieve a single module by id
-function findModuleById(req, res) {
+async function findModuleById(req, res) {
     let moduleId = req.params['moduleId'];
-    moduleModel
-        .findModuleById(moduleId)
-        .then(function(module) {
-            res.json(module);
-        }, function(err) {
-            res.send(err);
-        });
+    let response;
+    try {
+        response = await moduleModel.findModuleById(moduleId);
+        res.json(response);
+    } catch (err) {
+        res.status(400).send("no module found");
+    }
 }
 
 //retrieve a user(s) by module id
-function getModuleUsers(req, res) {
+async function getModuleUsers(req, res) {
     let moduleId = req.params['moduleId'];
-    moduleModel
-        .getModuleUsers(moduleId)
-        .then(function(users){
-            res.json(users);
-        }, function(err) {
-            res.send(err);
-        });
+    let module;
+    try {
+        module = await moduleModel.findModuleById(moduleId);
+        res.send(module.users);
+    } catch (err) {
+        res.status(400).send("no module found therefore no associated users");
+    }
 }
 
 //adds a single module to the database
-function createModules(req, res) {
+async function createModules(req, res) {
     let module = req.body;
-    moduleModel
-        .createModules(module)
-        .then(function (module) {
-            console.log("entered");
-            res.send(module);
-        }, function(err) {
-            res.send(err);
-        });
+    res.send(await moduleModel.createModules(module));
 }
 
 //update a module by id
-function updateModule(req, res) {
+async function updateModule(req, res) {
     let moduleId = req.params['moduleId'];
     let module = req.body;
-
-    moduleModel
-        .updateModule(moduleId, module)
-        .then(function (module) {
-            res.json(module);
-        }, function(err) {
-            res.send(err);
-        });
+    let response;
+    try {
+        response = moduleModel.updateModule(moduleId, module);
+        res.json(response);
+    } catch (err){
+        res.status(400).send("failed to update module");
+    }
 }
 
 //remove a user from a module given the module id and the user id
-function removeModuleUser(req, res) {
+async function removeModuleUser(req, res) {
     let moduleId = req.params['moduleId'];
     let userId = req.params['userId'];
     console.log('deleting user: '+userId);
-
-    moduleModel
-        .removeModuleUser(moduleId, userId)
-        .then(function() {
-            res.sendStatus(202);
-        }, function(err) {
-            res.send(err);
-        });
+    try {
+        await moduleModel.removeModuleUser(moduleId, userId);
+        res.sendStatus(202);
+    } catch(err) {
+        res.status(404).send("module does not exist");
+    }
 }
 
 //remove module by id
 function removeModule(req, res) {
     let moduleId = req.params.moduleId;
     console.log('deleting module: ' +moduleId);
-    moduleModel
-        .removeModule(moduleId)
-        .then(function() {
-            res.sendStatus(202);
-        }, function(err) {
-           res.send(err);
-        });
+    let ans;
+    try {
+        ans = moduleModel.removeModule(moduleId);
+        res.sendStatus(202);
+    } catch(err) {
+        res.send(err);
+    }
 }
 
 module.exports = router;
