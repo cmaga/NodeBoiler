@@ -7,12 +7,12 @@ const router = require('express').Router();
 const userModel = require('../models/userModel');
 const userService = require('../services/userService');
 
-router.post('/register', registerUser); //
-router.post('/login', userLogin); //
-router.get('/', getAllUsers); //
-router.get('/:userId', findUserById); //
-router.put('/:userId', updateUserById); //
-router.delete('/:userId', removeUserById); //todo testing
+router.post('/register', registerUser);
+router.post('/login', userLogin);
+router.get('/', getAllUsers);
+router.get('/:userId', findUserById);
+router.put('/:userId', updateUserById);
+router.delete('/:userId', removeUserById);
 
 //Register a user
 async function registerUser(req, res) {
