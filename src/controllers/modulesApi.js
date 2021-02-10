@@ -74,7 +74,7 @@ async function removeModuleUser(req, res) {
 }
 
 //remove module by id
-function removeModule(req, res) {
+async function removeModule(req, res) {
     let moduleId = req.params.moduleId;
     console.log('deleting module: ' +moduleId);
     let ans;
