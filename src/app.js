@@ -8,10 +8,10 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 //Import routes
-const usersRoute = require('./routes/users');
-const modulesRoute = require('./routes/modules');
+const usersRoute = require('./controllers/userApi');
+const modulesRoute = require('./controllers/modulesApi');
 
-dotenv.config();
+dotenv.config({path: __dirname + `/config/.env`});
 
 //DB Connect
 mongoose.connect(
@@ -24,7 +24,7 @@ mongoose.connect(
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-//Route middlewares
+//Route middleware urls
 app.use('/api/users', usersRoute);
 app.use('/api/modules', modulesRoute);
 
