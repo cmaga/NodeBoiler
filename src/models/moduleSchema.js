@@ -6,13 +6,16 @@ const mongoose = require('mongoose');
 
 const moduleSchema = mongoose.Schema({
     //using default mongo id for now
-        "users": [{
-            "userId": String,
-            "userName": String
-        }]
-    },
+    "users": [{
+        "userId": String,
+        "userName": String
+    }],
+    "temperature": String,
+    "humidity": String,
+    "methane": String
+},
     {
-    collection: "modules"
+        collection: "modules"
     }
 );
 
