@@ -11,7 +11,7 @@ router.post('/register', registerUser);
 router.post('/login', userLogin);
 router.get('/', getAllUsers);
 router.get('/:userId', findUserById);
-router.get('/:routerUUID/router', getWifiByRouterUUID);
+router.get('/:routerUUID/wifi', getWifiByRouterUUID);
 router.get('/:routerUUID/modules', getModulesByRouterUUID);
 router.put('/:userId', updateUserById);
 router.put('/:userId/modules', addModuleToUser);
