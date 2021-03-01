@@ -2,14 +2,17 @@ const router = require('express').Router();
 
 
 const moduleModel = require('../models/modulesModel');
+const moduleService = require('../services/modulesService');
 
 router.get('/list', getModules);
-router.get('/:moduleId', findModuleById);
-router.get('/users/:moduleId', getModuleUsers);
+router.get('/mongoId/:moduleId', findModuleById);
+router.get('/:mac', findModuleByMac);
 router.post('/create', createModules);
-router.put('/:moduleId', updateModule);
-router.delete('/:moduleId/:userId', removeModuleUser);
-router.delete('/:moduleId', removeModule);
+router.put('/:mac', updateModule);
+router.delete('/:mac', removeModule);
+router.delete('/clean/:mac', removeAllModuleData); //removes tracked history only
+router.delete('/:mac/:foodName', removeFoodItem);
+
 
 //retrieve all modules
 async function getModules(req, res) {
@@ -29,15 +32,15 @@ async function findModuleById(req, res) {
     }
 }
 
-//retrieve a user(s) by module id
-async function getModuleUsers(req, res) {
-    let moduleId = req.params['moduleId'];
-    let module;
+//retrieve a single module by mac address
+async function findModuleByMac(req, res) {
+    let mac = req.params['mac'];
+    let response;
     try {
-        module = await moduleModel.findModuleById(moduleId);
-        res.send(module.users);
+        response = await moduleModel.findModuleByMac(mac);
+        res.json(response);
     } catch (err) {
-        res.status(400).send("no module found therefore no associated users");
+        res.status(400).send("no module found");
     }
 }
 
@@ -47,40 +50,67 @@ async function createModules(req, res) {
     res.send(await moduleModel.createModules(module));
 }
 
-//update a module by id
+//update a module by mac address
 async function updateModule(req, res) {
-    let moduleId = req.params['moduleId'];
+    let moduleId = req.params['mac'];
     let module = req.body;
-    let response;
-    try {
-        response = moduleModel.updateModule(moduleId, module);
-        res.json(response);
-    } catch (err){
-        res.status(400).send("failed to update module");
-    }
-}
-
-//remove a user from a module given the module id and the user id
-async function removeModuleUser(req, res) {
-    let moduleId = req.params['moduleId'];
-    let userId = req.params['userId'];
-    console.log('deleting user: '+userId);
-    try {
-        await moduleModel.removeModuleUser(moduleId, userId);
+    let response = await moduleModel.updateModule(moduleId, module);
+    if (response == null) {
+        res.status(400).send("Error No matching mac address found");
+    } else {
         res.sendStatus(202);
-    } catch(err) {
-        res.status(404).send("module does not exist");
     }
 }
 
-//remove module by id
+//remove module by mac address
 async function removeModule(req, res) {
-    let moduleId = req.params.moduleId;
+    let moduleId = req.params.mac;
     console.log('deleting module: ' +moduleId);
+
+    let ans = await moduleModel.removeModule(moduleId);
+    console.log(ans.deletedCount);
+    if (ans.deletedCount === 0) {
+        res.status(400).send("module not found");
+    } else {
+        res.sendStatus(204);
+    }
+}
+
+//clear data for a particular food item
+async function removeFoodItem(req, res) {
+    console.log("wrong");
+    let moduleId = req.params.mac;
+    let foodName = req.params.foodName;
+    let ans = await moduleModel.removeFoodItem(moduleId, foodName);
+
+    //this logic only handles the response, there is no business logic
+    if (ans != null) {
+        const array = ans.history;
+        let found = false;
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].foodName === foodName) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            res.sendStatus(202)
+        }
+    } else {
+        res.status(400).send("unable to delete");
+    }
+}
+
+//clear all saved module data
+async function removeAllModuleData(req, res) {
+    console.log("correct");
+    let moduleId = req.params.mac;
     let ans;
+
     try {
-        ans = moduleModel.removeModule(moduleId);
-        res.sendStatus(202);
+        //module service checks to make sure module exists before clearings its data fields
+        ans = await moduleService.moduleClearHistory(moduleId);
+        res.sendStatus(ans);
     } catch(err) {
         res.send(err);
     }
