@@ -6,13 +6,21 @@ const mongoose = require('mongoose');
 
 const moduleSchema = mongoose.Schema({
     //using default mongo id for now
-    "users": [{
-        "userId": String,
-        "userName": String
+    "mac": String,
+    "history": [{
+        "foodName": String,
+        "data": [
+            {
+                "timeStamp": {
+                    type: Date,
+                    default: Date.now
+                },
+                "temperature": String,
+                "humidity": String,
+                "methane": String,
+            }
+        ]
     }],
-    "temperature": String,
-    "humidity": String,
-    "methane": String
 },
     {
         collection: "modules"

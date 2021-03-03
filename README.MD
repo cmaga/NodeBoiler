@@ -10,7 +10,7 @@ Connects with MongoDB Atlas SaaS remote database.
 ## Starting up the server side of the project
 `npm install` To install necessary dependencies locally.
 
-`npm run` To automatically run the backend using the nodemon version installed in the dependencies.
+`npm run dev` To automatically run the backend using the nodemon version installed in the dependencies.
 
 In order to connect to the database, the users public ip needs to be added for the Atlas cluster as it
 only allows certain IPs to connect.
