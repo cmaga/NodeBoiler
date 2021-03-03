@@ -11,52 +11,64 @@ router.post('/register', registerUser);
 router.post('/login', userLogin);
 router.get('/', getAllUsers);
 router.get('/:userId', findUserById);
+router.get('/:routerUUID/wifi', getWifiByRouterUUID);
+router.get('/:routerUUID/modules', getModulesByRouterUUID);
 router.put('/:userId', updateUserById);
+router.put('/:userId/modules', addModuleToUser);
 router.delete('/:userId', removeUserById);
 
-//Register a user
-async function registerUser(req, res) {
-    //call user service for data validation
-    let successfullyCreatedUser;
-    try {
-        successfullyCreatedUser = await userService.userRegistration(req.body);
-        res.send(successfullyCreatedUser);
-    } catch (err) {
-        res.status(400).send(err);
-    }
+//Add module mac address to a user schema
+async function addModuleToUser(req, res) {
+    const module = req.body;
+    const userId = req.params.userId;
+    res.send(await userModel.addModuleToUser(userId, module));
 }
 
-//login a user
+//Get all modules associated with a routerUUID
+async function getModulesByRouterUUID(req, res) {
+    const routerUUID = req.params.routerUUID;
+    res.send(await userModel.getModulesByRouterUUID(routerUUID));
+}
+
+//Get wifi credentials by router uuid
+async function getWifiByRouterUUID(req, res) {
+    routerUUID = req.params.routerUUID;
+    res.send(await userModel.getWifiByRouterUUID(routerUUID));
+}
+
+//Create a user
+async function registerUser(req, res) {
+    let user = req.body;
+    res.send(await userModel.createUser(user));
+}
+
+//Login a user
 async function userLogin(req, res) {
     //call user login service
     let loginResponse;
     try {
         loginResponse = await userService.userLogin(req.body);
         res.header('auth-token', loginResponse.token).send(loginResponse.id);
-    } catch(err) {
+    } catch (err) {
         res.send(err);
     }
 }
 
-//get all users
+//Get all users
 async function getAllUsers(req, res) {
     res.send(await userModel.getUsers());
 }
 
-//find a user by id
+//Find a user by id
 async function findUserById(req, res) {
     res.send(await userModel.getSingleUserById(req.params.userId));
 }
 
-//update a user by id
+//Update a user by id
 async function updateUserById(req, res) {
-    let updateResponse;
-    try {
-        updateResponse = await userService.updateUserById(req.body, req.params.userId);
-        res.send(updateResponse);
-    } catch(err) {
-        res.status(400).send(err);
-    }
+    const user = req.body;
+    const userId = req.params.userId;
+    res.send(await userModel.updateSingleUser(userId, user));
 }
 
 //Delete user by id

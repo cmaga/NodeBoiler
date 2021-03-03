@@ -6,54 +6,18 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/userModel');
+const { response } = require('express');
 
 /*
     Primary Services
  */
-async function userRegistration (userData) {
+function validateCreateUser(user) {
+    // Hash password
+    if (user.password) {
+        user.password = hashPassword(user.password);
+    }
 
-        let failed = false;
-        let errorMessage = 'no error';
-        let successObject;
-        //validate post data
-        const {error} = registerValidation(userData);
-        if (error) {
-            errorMessage = error.details[0].message;
-            failed = true;
-        } else {
-            //check if user exists in DB
-            const emailExist = await userModel.findOne({email: userData.email});
-            if (emailExist) {
-                failed = true;
-                errorMessage = "User with that email already exists";
-            } else {
-                //Hash password
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(userData.password, salt);
-                //Create new user
-                const user = new userModel({
-                    name: userData.name,
-                    email: userData.email,
-                    password: hashedPassword
-                });
-                try {
-                    const savedUser = await user.save();
-                    successObject = {user: savedUser._id};
-                } catch (err) {
-                    errorMessage = "database failed to save the user";
-                    failed = true;
-                }
-            }
-
-        }
-        console.log(errorMessage);
-    return new Promise((resolve, reject) => {
-        if (failed) {
-            reject(errorMessage);
-        } else {
-            resolve(successObject);
-        }
-    })
+    return user;
 }
 
 async function userLogin(loginData) {
@@ -69,7 +33,7 @@ async function userLogin(loginData) {
         failed = true;
     } else {
         //check if user exists in db
-        let foundUser =  await userModel.getSingleUserByEmail(loginData.email);
+        let foundUser = await userModel.getSingleUserByEmail(loginData.email);
         if (!foundUser) {
             errorMessage = 'User with that email not found';
             failed = true;
@@ -81,7 +45,7 @@ async function userLogin(loginData) {
             } else {
 
                 foundUserId = foundUser._id;
-                tokenGenerated = jwt.sign({ "userId": foundUser._id}, process.env.TOKEN_SECRET);
+                tokenGenerated = jwt.sign({ "userId": foundUser._id }, process.env.TOKEN_SECRET);
             }
         }
     }
@@ -97,42 +61,6 @@ async function userLogin(loginData) {
         }
     })
 }
-async function updateUserById(userData, userId) {
-    let failed = false;
-    let errorMessage = 'no error';
-    //validate post data
-    const {error} = registerValidation(userData);
-    if (error) {
-        errorMessage = error.details[0].message;
-        failed = true;
-    } else {
-        const userExist = await userModel.getSingleUserById(userId);
-        if (!userExist) {
-            errorMessage = 'User does not exist';
-            failed = true;
-        } else {
-            //Hash password if new password passed
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(userData.password, salt);
-
-            try {
-                const savedUser = await userModel.updateSingleUser(userId, userData, hashedPassword);
-
-            } catch (err) {
-                failed = true;
-                errorMessage = "unable to update the user in the database";
-            }
-        }
-    }
-    return new Promise((resolve, reject) => {
-        if (failed) {
-            reject(errorMessage);
-        } else {
-            resolve(userId);
-        }
-    })
-}
-
 
 //authenticate jsonwebtoken
 function authenticateUser(token) {
@@ -146,17 +74,6 @@ function authenticateUser(token) {
     Helper functions
  */
 
-//Validate user registration
-const registerValidation = userData => {
-    const userSchema = Joi.object({
-        name: Joi.string().min(6).max(255),
-        email: Joi.string().min(6).email(),
-        password: Joi.string().min(6)
-    });
-
-    return userSchema.validate(userData);
-}
-
 //Validate user login
 const loginValidation = userData => {
     const userSchema = Joi.object({
@@ -167,12 +84,16 @@ const loginValidation = userData => {
     return userSchema.validate(userData);
 }
 
-//
+//Hash password
+async function hashPassword(password) {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+}
 
+module.exports.validateCreateUser = validateCreateUser;
 module.exports.userLogin = userLogin;
-module.exports.userRegistration = userRegistration;
-module.exports.updateUserById = updateUserById;
 module.exports.authenticateUser = authenticateUser;
+
 
 //module.exports = UserService;
 
