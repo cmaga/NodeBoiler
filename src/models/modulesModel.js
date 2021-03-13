@@ -10,6 +10,12 @@ moduleModel.updateModule = updateModule;
 moduleModel.removeModule = removeModule;
 moduleModel.removeFoodItem = removeFoodItem;
 moduleModel.removeAllModuleData = removeAllModuleData;
+moduleModel.addData = addData;
+moduleModel.addNewFoodItem = addNewFoodItem;
+moduleModel.setTrackingToFalse = setTrackingToFalse;
+moduleModel.setTrackingToTrue = setTrackingToTrue;
+moduleModel.setAllTrackingToFalse = setAllTrackingToFalse;
+moduleModel.findFoodByName = findFoodByName;
 module.exports = moduleModel;
 
 function getModules() {
@@ -60,4 +66,51 @@ function removeAllModuleData(macAddress) {
     return moduleModel.findOneAndUpdate({mac: macAddress}, {$set: {"history": []}}, {multi: true});
 }
 
+//Note: in the case the user has not begun tracking any food this data will not be accepted
+function addData(macAddress, data) {
+        return moduleModel.findOneAndUpdate(
+            {mac: macAddress},
+            {   $push: {"history.$[elem].data" : data}, "upsert": true},
+            { arrayFilters: [{ "elem.tracking": {$eq : true} }] },
+            );
+}
 
+function addNewFoodItem(macAddress, name) {
+    return moduleModel.findOneAndUpdate(
+        {mac: macAddress},
+        {$push: {
+                history: {
+                            foodName: name,
+                            data: []
+                        }
+            }
+        }
+    );
+}
+
+function setTrackingToFalse(macAddress, foodName) {
+    return moduleModel.findOneAndUpdate(
+        {mac: macAddress},
+        {   $set: {"history.$[elem].tracking" : false}  },
+        {   arrayFilters: [ {"elem.history.foodName": {$eq: foodName}} ]    }
+    );
+}
+function setTrackingToTrue(macAddress, foodName) {
+
+    return moduleModel.findOneAndUpdate(
+        {mac: macAddress},
+        {   $set: {"history.$[elem].tracking" : true}  },
+        {   arrayFilters: [ {"elem.history.foodName": {$eq: foodName}} ]    }
+    );
+}
+
+function setAllTrackingToFalse(macAddress) {
+    return moduleModel.findOneAndUpdate(
+        {mac: macAddress},
+        {$set: {"history.$[elem].tracking": false} },
+        {   arrayFilters: [ {"elem.tracking": {$eq: true}} ]}
+    )
+}
+function findFoodByName(macAddress, food) {
+    return moduleModel.findOne( {mac: macAddress, "history.foodName": food}   );
+}

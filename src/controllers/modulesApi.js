@@ -11,8 +11,10 @@ router.post('/create', createModules);
 router.put('/:mac', updateModule);
 router.delete('/:mac', removeModule);
 router.delete('/clean/:mac', removeAllModuleData); //removes tracked history only
+router.post('/data/:mac', addData);
 router.delete('/:mac/:foodName', removeFoodItem);
-
+router.put('/track/:mac/:foodName', toggleTrackingStatus);
+router.post('/:mac', addNewFoodItem);
 
 //retrieve all modules
 async function getModules(req, res) {
@@ -78,7 +80,6 @@ async function removeModule(req, res) {
 
 //clear data for a particular food item
 async function removeFoodItem(req, res) {
-    console.log("wrong");
     let moduleId = req.params.mac;
     let foodName = req.params.foodName;
     let ans = await moduleModel.removeFoodItem(moduleId, foodName);
@@ -101,19 +102,61 @@ async function removeFoodItem(req, res) {
     }
 }
 
-//clear all saved module data
-async function removeAllModuleData(req, res) {
-    console.log("correct");
-    let moduleId = req.params.mac;
-    let ans;
+//add new food item (just the name);
+/*
+should be in the format: {foodName: "desiredName"}
+ */
+async function addNewFoodItem(req, res) {
+    let name = req.body.foodName;
+    let mac = req.params.mac;
+    try {
+        let ans = await moduleModel.addNewFoodItem(mac, name);
+        res.sendStatus(204);
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(400);
+    }
+}
 
+//clear all module history field
+async function removeAllModuleData(req, res) {
+    let moduleId = req.params.mac;
     try {
         //module service checks to make sure module exists before clearings its data fields
-        ans = await moduleService.moduleClearHistory(moduleId);
-        res.sendStatus(ans);
+        let ans = await moduleService.moduleClearHistory(moduleId);
+        res.sendStatus(202);
     } catch(err) {
         res.send(err);
     }
+}
+
+//Adds data for the current food being tracked
+//If no food is currently being tracked the data is not entered into the database
+async function addData(req, res) {
+    let mac = req.params.mac;
+    let data = req.body;
+    try {
+        let ans = await moduleModel.addData(mac, data);
+        console.log(ans);
+    } catch (e) {
+        console.log(e);
+    }
+    res.sendStatus(204);
+}
+
+//toggles the status to tracking or not being tracked
+//(Can only track one food at a time per module)
+async function toggleTrackingStatus(req, res) {
+    let mac = req.params.mac;
+    let foodName = req.params.foodName;
+    let state = req.body.state;
+    try {
+        let ans = await moduleService.toggleTracking(mac, foodName, state);
+        res.sendStatus(204);
+    } catch (e) {
+        res.status(404).send(e);
+    }
+
 }
 
 module.exports = router;
