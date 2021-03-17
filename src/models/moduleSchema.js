@@ -5,22 +5,25 @@
 const mongoose = require('mongoose');
 
 const moduleSchema = mongoose.Schema({
-    //using default mongo id for now
     "mac": String,
-    "history": [{
+    "history": [
+        {
         "foodName": String,
+        "tracking": {type: Boolean, default: false},
+        "status": {type: String, default: "none"},
         "data": [
-            {
-                "timeStamp": {
-                    type: Date,
-                    default: Date.now
-                },
-                "temperature": String,
-                "humidity": String,
-                "methane": String,
-            }
-        ]
-    }],
+                     {
+                         "timeStamp": {
+                             type: Date,
+                             default: Date.now
+                         },
+                         "temperature": Number,
+                         "humidity": Number,
+                         "methane": Number,
+                     }
+                ]
+        }
+    ],
 },
     {
         collection: "modules"
