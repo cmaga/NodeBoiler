@@ -154,10 +154,12 @@ async function addData(req, res) {
 
 //toggles the status to tracking or not being tracked
 //(Can only track one food at a time per module)
+
 async function toggleTrackingStatus(req, res) {
     let mac = req.params.mac;
     let foodName = req.params.foodName;
     let state = req.body.state;
+
     try {
         let ans = await moduleService.toggleTracking(mac, foodName, state);
         res.sendStatus(204);
