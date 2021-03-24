@@ -114,3 +114,4 @@ function setAllTrackingToFalse(macAddress) {
 function findFoodByName(macAddress, food) {
     return moduleModel.findOne( {mac: macAddress, "history.foodName": food}   );
 }
+
