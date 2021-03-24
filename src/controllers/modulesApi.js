@@ -135,13 +135,21 @@ async function removeAllModuleData(req, res) {
 async function addData(req, res) {
     let mac = req.params.mac;
     let data = req.body;
+    let ans;
+    let freshness = "database error";
     try {
-        let ans = await moduleModel.addData(mac, data);
-        console.log(ans);
+        ans = await moduleModel.addData(mac, data);
+        //hardware team specifically asked for the server to send back the status as a response
+        for (let i = 0; i < ans.history.length; i++) {
+            if (ans.history[i].tracking) {
+                freshness = ans.history[i].status;
+            }
+        }
     } catch (e) {
         console.log(e);
     }
-    res.sendStatus(204);
+
+    res.send(freshness);
 }
 
 //toggles the status to tracking or not being tracked
