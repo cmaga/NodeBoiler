@@ -16,7 +16,6 @@ moduleModel.setTrackingToFalse = setTrackingToFalse;
 moduleModel.setTrackingToTrue = setTrackingToTrue;
 moduleModel.setAllTrackingToFalse = setAllTrackingToFalse;
 moduleModel.findFoodByName = findFoodByName;
-moduleModel.getFoodStatus = getFoodStatus;
 module.exports = moduleModel;
 
 function getModules() {
@@ -116,6 +115,3 @@ function findFoodByName(macAddress, food) {
     return moduleModel.findOne( {mac: macAddress, "history.foodName": food}   );
 }
 
-function getFoodStatus(mac) {
-
-}
