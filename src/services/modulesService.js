@@ -41,39 +41,41 @@ async function moduleClearHistory(mac) {
 async function toggleTracking(mac, foodName, state) {
     let failed = false;
     let error = "error: unable to find food or module";
-    if (state === false) {
-        try {
-            await moduleModel.setTrackingToFalse(mac, foodName);
-        } catch (e) {
-            failed = true;
-        }
-    } else if (state === true) {
-        let ans;
-        //check that the foodName exists for this module
-        try {
-            ans = await moduleModel.findFoodByName(mac, foodName);
-        } catch (e) {
-            console.log("foodName search error");
-        }
-        if (ans) {
-            //set stop from tracking all foods for this module
-            try {
-                await moduleModel.setAllTrackingToFalse(mac);
-            } catch (e) {}
-            //set tracking flag for the foodName to true
-            try {
-                let ans = await moduleModel.setTrackingToTrue(mac, foodName);
-            } catch (e) {
-                failed = true;
-            }
-        } else {
-            failed = true;
-        }
-    } else {
-        //string messed up
-        error = "body should be true or false";
+        if (state === false) {
+             try {
+                 await moduleModel.setTrackingToFalse(mac, foodName);
+             } catch (e) {
+                 failed = true;
+             }
+         } else if (state === true) {
+             let ans;
+             //check that the foodName exists for this module
+             try {
+                 ans = await moduleModel.findFoodByName(mac, foodName);
+             } catch (e) {
+                 console.log("foodName search error");
+             }
+             if (ans) {
+                 //set stop from tracking all foods for this module
+                 try {
+                     await moduleModel.setAllTrackingToFalse(mac);
+                 } catch (e) {}
 
-    }
+                 //set tracking flag for the foodName to true
+                 try {
+                     let ans = await moduleModel.setTrackingToTrue(mac, foodName);
+                 } catch (e) {
+                     failed = true;
+                 }
+             } else {
+                 failed = true;
+             }
+        } else {
+             //string messed up
+             error = "body should be true or false";
+
+        }
+
     return new Promise((resolve, reject)=> {
        if (failed) {
            reject(error);

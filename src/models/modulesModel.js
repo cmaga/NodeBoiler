@@ -92,7 +92,7 @@ function setTrackingToFalse(macAddress, foodName) {
     return moduleModel.findOneAndUpdate(
         {mac: macAddress},
         {   $set: {"history.$[elem].tracking" : false}  },
-        {   arrayFilters: [ {"elem.history.foodName": {$eq: foodName}} ]    }
+        {   arrayFilters: [ {"elem.foodName": {$eq: foodName}} ]    }
     );
 }
 function setTrackingToTrue(macAddress, foodName) {
@@ -100,7 +100,7 @@ function setTrackingToTrue(macAddress, foodName) {
     return moduleModel.findOneAndUpdate(
         {mac: macAddress},
         {   $set: {"history.$[elem].tracking" : true}  },
-        {   arrayFilters: [ {"elem.history.foodName": {$eq: foodName}} ]    }
+        {   arrayFilters: [ {"elem.foodName": {$eq: foodName}} ]    }
     );
 }
 
