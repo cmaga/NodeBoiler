@@ -71,6 +71,7 @@ async function toggleTracking(mac, foodName, state) {
                  failed = true;
              }
         } else {
+             failed = true;
              //string messed up
              error = "body should be true or false";
 
