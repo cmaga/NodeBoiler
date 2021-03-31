@@ -15,6 +15,7 @@ router.post('/data/:mac', addData);
 router.delete('/:mac/:foodName', removeFoodItem);
 router.put('/track/:mac/:foodName', toggleTrackingStatus);
 router.post('/:mac', addNewFoodItem);
+router.delete('/wipe/:mac/:foodName', wipeFoodsData);
 
 //retrieve all modules
 async function getModules(req, res) {
@@ -140,11 +141,14 @@ async function addData(req, res) {
     try {
         ans = await moduleModel.addData(mac, data);
         //hardware team specifically asked for the server to send back the status as a response
+
         for (let i = 0; i < ans.history.length; i++) {
             if (ans.history[i].tracking) {
                 freshness = ans.history[i].status;
             }
         }
+
+
     } catch (e) {
         console.log(e);
     }
@@ -166,7 +170,17 @@ async function toggleTrackingStatus(req, res) {
     } catch (e) {
         res.status(404).send(e);
     }
+}
 
+async function wipeFoodsData(req, res) {
+    try {
+
+        let ans = await moduleModel.wipeFoodsData(req.params.mac, req.params.foodName);
+        res.sendStatus(204);
+    } catch (e) {
+        console.log(e);
+        res.sendStatus(400);
+    }
 }
 
 module.exports = router;

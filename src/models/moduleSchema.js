@@ -12,14 +12,19 @@ const moduleSchema = mongoose.Schema({
         "tracking": {type: Boolean, default: false},
         "status": {type: String, default: "none"},
         "data": [
-                     {
+                     {   "gas0": Number,
+                         "gas1": Number,
+                         "gas2": Number,
+                         "gas3": Number,
+                         "gas4": Number,
+                         "gas5": Number,
+                         "battery": Number,
+                         "humidity": Number,
+                         "temperature": Number,
                          "timeStamp": {
                              type: Date,
                              default: Date.now
-                         },
-                         "temperature": Number,
-                         "humidity": Number,
-                         "methane": Number,
+                         }
                      }
                 ]
         }
