@@ -16,6 +16,7 @@ moduleModel.setTrackingToFalse = setTrackingToFalse;
 moduleModel.setTrackingToTrue = setTrackingToTrue;
 moduleModel.setAllTrackingToFalse = setAllTrackingToFalse;
 moduleModel.findFoodByName = findFoodByName;
+moduleModel.wipeFoodsData = wipeFoodsData;
 module.exports = moduleModel;
 
 function getModules() {
@@ -69,9 +70,11 @@ function removeAllModuleData(macAddress) {
 //Note: in the case the user has not begun tracking any food this data will not be accepted
 function addData(macAddress, data) {
         return moduleModel.findOneAndUpdate(
-            {mac: macAddress},
-            {   $push: {"history.$[elem].data" : data}, "upsert": true},
-            { arrayFilters: [{ "elem.tracking": {$eq : true} }] },
+             {mac: macAddress},
+             {$push: {"history.$[elem].data" : data} },
+             {
+                 arrayFilters: [    { "elem.tracking": {$eq : true}}    ]
+             }
             );
 }
 
@@ -113,5 +116,17 @@ function setAllTrackingToFalse(macAddress) {
 }
 function findFoodByName(macAddress, food) {
     return moduleModel.findOne( {mac: macAddress, "history.foodName": food}   );
+}
+
+function wipeFoodsData(m, f) {
+    return moduleModel.findOneAndUpdate(
+        {mac: m},
+        {
+            $set: { "history.$[elem].data" : [] }
+        },
+        {
+            arrayFilters: [{"elem.foodName": {$eq: f}}]
+        }
+    );
 }
 
