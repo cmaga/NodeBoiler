@@ -68,7 +68,7 @@ async function updateModule(req, res) {
 //remove module by mac address
 async function removeModule(req, res) {
     let moduleId = req.params.mac;
-    console.log('deleting module: ' +moduleId);
+    console.log('deleting module: ' + moduleId);
 
     let ans = await moduleModel.removeModule(moduleId);
     console.log(ans.deletedCount);
@@ -126,7 +126,7 @@ async function removeAllModuleData(req, res) {
         //module service checks to make sure module exists before clearings its data fields
         let ans = await moduleService.moduleClearHistory(moduleId);
         res.sendStatus(202);
-    } catch(err) {
+    } catch (err) {
         res.send(err);
     }
 }
@@ -153,7 +153,7 @@ async function addData(req, res) {
         console.log(e);
     }
 
-    res.send(freshness);
+    res.send({ freshness: freshness });
 }
 
 //toggles the status to tracking or not being tracked
