@@ -10,7 +10,7 @@ const moduleSchema = mongoose.Schema({
         {
         "foodName": String,
         "tracking": {type: Boolean, default: false},
-        "status": {type: String, default: "none"},
+        "status": {type: Number, default: 255},
         "data": [
                      {   "gas0": Number,
                          "gas1": Number,

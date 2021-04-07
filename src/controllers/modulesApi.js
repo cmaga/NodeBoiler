@@ -137,7 +137,7 @@ async function addData(req, res) {
     let mac = req.params.mac;
     let data = req.body;
     let ans;
-    let freshness = "database error";
+    let freshness = -1;
     try {
         ans = await moduleModel.addData(mac, data);
         //hardware team specifically asked for the server to send back the status as a response
