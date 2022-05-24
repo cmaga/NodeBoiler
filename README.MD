@@ -1,11 +1,4 @@
-Northeastern University - Capstone 2020
-
-Node.js backend code base for project server.
-
 ## Purpose
-This is the backend server that will be support a mobile application for a food spoilage detection system
-
-Using Express Web App framework with Mongoose MongoDB ODM for persistent data storage.
 Connects with MongoDB Atlas SaaS remote database.
 ## Starting up the server side of the project
 `npm install` To install necessary dependencies locally.
