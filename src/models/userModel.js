@@ -4,25 +4,12 @@ const userService = require('../services/userService');
 const userModel = mongoose.model('UserModel', userSchema);
 
 userModel.getUsers = getUsers;
-userModel.getWifiByRouterUUID = getWifiByRouterUUID;
 userModel.getSingleUserById = getSingleUserById;
 userModel.getSingleUserByEmail = getSingleUserByEmail;
 userModel.updateSingleUser = updateSingleUser;
 userModel.removeUserbyId = removeUserById;
 userModel.createUser = createUser;
-userModel.getModulesByRouterUUID = getModulesByRouterUUID;
-userModel.addModuleToUser = addModuleToUser;
 module.exports = userModel;
-
-async function addModuleToUser(userId, module) {
-    const addModule = await userModel.findOneAndUpdate({ _id: userId }, { $push: { modules: module } });
-    return await userModel.findOne({ _id: userId });
-}
-
-async function getModulesByRouterUUID(routerUUID) {
-    const modules = await userModel.findOne({ router_uuid: routerUUID }).select('modules -_id');
-    return modules;
-}
 
 async function createUser(user) {
     //These lines cause errors...
@@ -41,11 +28,6 @@ function getUsers() {
         return userMap;
     });
 
-}
-
-//Return wifi ssid and wifi pwd for a user
-function getWifiByRouterUUID(routerUUID) {
-    return userModel.findOne({ router_uuid: routerUUID }).select('wifi_ssid wifi_pwd -_id');
 }
 
 function getSingleUserById(userId) {

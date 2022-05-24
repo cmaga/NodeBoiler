@@ -6,7 +6,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/userModel');
-const { response } = require('express');
 
 /*
     Primary Services
@@ -93,13 +92,3 @@ async function hashPassword(password) {
 module.exports.validateCreateUser = validateCreateUser;
 module.exports.userLogin = userLogin;
 module.exports.authenticateUser = authenticateUser;
-
-
-//module.exports = UserService;
-
-/*
-left off at:
-write service object for users
-using factory method pattern
-add token decoding to get user id feature in backend
- */

@@ -5,20 +5,24 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+
 const dotenv = require('dotenv');
+dotenv.config({path: __dirname + `/config/.env`});
 
 //Import routes
 const usersRoute = require('./controllers/userApi');
-const modulesRoute = require('./controllers/modulesApi');
 
-dotenv.config({path: __dirname + `/config/.env`});
+const connectionString = process.env.NODE_ENV == 'dev' ? 'mongodb://localhost:27017/gm' : process.env.DB_CONNECTION;
 
-//DB Connect
+//Connect Mongoose
 mongoose.connect(
-    process.env.DB_CONNECTION,
+    connectionString,
     { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false },
-    () => console.log("Connected to Database")
-);
+    () => console.log("Mongoose buffered")
+)
+
+const mongooseConnection = mongoose.connection;
+mongooseConnection.on('error', console.error.bind(console, "connection error: "));
 
 //Middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +30,6 @@ app.use(express.json());
 
 //Route middleware urls
 app.use('/api/users', usersRoute);
-app.use('/api/modules', modulesRoute);
 
 const port = process.env.PORT
 app.listen(port, () => {
